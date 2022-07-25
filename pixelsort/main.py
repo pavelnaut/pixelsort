@@ -2,7 +2,7 @@ import logging
 from PIL import Image
 
 from pixelsort.util import crop_to
-from pixelsort.sorter import sort_image
+from pixelsort.sorter import sort_image, average_image
 from pixelsort.constants import DEFAULTS
 from pixelsort.interval import choices as interval_choices
 from pixelsort.sorting import choices as sorting_choices
@@ -18,7 +18,8 @@ def pixelsort(
     interval_function=DEFAULTS["interval_function"],
     lower_threshold=DEFAULTS["lower_threshold"],
     upper_threshold=DEFAULTS["upper_threshold"],
-    angle=DEFAULTS["angle"]
+    angle=DEFAULTS["angle"],
+    average=False,
 ):
 
     original = image
@@ -45,13 +46,22 @@ def pixelsort(
         interval_image=interval_image,
     )
     logging.debug("Sorting pixels...")
-    sorted_pixels = sort_image(
-        image.size,
-        image_data,
-        mask_data,
-        intervals,
-        randomness,
-        sorting_choices[sorting_function])
+    if average:
+        sorted_pixels = average_image(
+            image.size,
+            image_data,
+            mask_data,
+            intervals,
+            randomness,
+            sorting_choices[sorting_function])
+    else:
+        sorted_pixels = sort_image(
+            image.size,
+            image_data,
+            mask_data,
+            intervals,
+            randomness,
+            sorting_choices[sorting_function])
 
     output_img = _place_pixels(
         sorted_pixels,
